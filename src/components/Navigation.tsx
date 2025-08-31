@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import SmoothLink from "./SmoothLink";
 
 const navigationItems = [
   { href: "/work", label: "Work" },
@@ -46,23 +47,23 @@ export default function Navigation() {
         <div className="container">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link 
+            <SmoothLink 
               href="/"
-              className="text-lg font-normal text-black"
+              className="text-lg font-normal text-black hover:opacity-60 transition-opacity"
             >
               The Room
-            </Link>
+            </SmoothLink>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8 text-sm">
               {navigationItems.map((item) => (
-                <Link
+                <SmoothLink
                   key={item.href}
                   href={item.href}
                   className="text-black hover:opacity-60 transition-opacity font-normal"
                 >
                   {item.label}
-                </Link>
+                </SmoothLink>
               ))}
               
               <div className="relative group">
@@ -109,14 +110,14 @@ export default function Navigation() {
               {/* Main Navigation */}
               <div className="space-y-4">
                 {navigationItems.map((item) => (
-                  <Link
+                  <SmoothLink
                     key={item.href}
                     href={item.href}
-                    className="block text-2xl font-normal text-black"
+                    className="block text-2xl font-normal text-black hover:opacity-60 transition-opacity"
                     onClick={() => setIsOpen(false)}
                   >
                     {item.label}
-                  </Link>
+                  </SmoothLink>
                 ))}
               </div>
 

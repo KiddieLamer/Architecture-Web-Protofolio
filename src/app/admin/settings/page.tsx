@@ -9,56 +9,34 @@ import {
   MapPin,
   ExternalLink,
   Upload,
-  X
+  X,
+  CheckCircle
 } from "lucide-react";
+import { useSettings } from "@/lib/admin/settingsStore";
 
 export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
-  const [settings, setSettings] = useState({
-    // Site Settings
-    siteName: "The Room Studio",
-    siteDescription: "Professional architectural visualization studio specializing in 3D rendering, interior visualization, and Unreal Engine development.",
-    siteUrl: "https://room.studio",
-    
-    // Contact Information
-    email: "info@room.studio",
-    phone: "+48 573-896-800",
-    address: "Warsaw, Poland",
-    
-    // Social Media
-    linkedin: "https://linkedin.com/company/room-studio",
-    behance: "https://behance.net/room-studio",
-    instagram: "https://instagram.com/room.studio",
-    pinterest: "https://pinterest.com/roomstudio",
-    telegram: "https://t.me/roomstudio",
-    whatsapp: "https://wa.me/48573896800",
-    
-    // SEO
-    metaKeywords: "3D visualization, architectural rendering, interior design, Unreal Engine",
-    googleAnalytics: "",
-    
-    // Company Info
-    companyName: "The Room Studio",
-    companyTagline: "Out of nothing came the cosmos, planets, entire worlds — each detail governed by an inner logic and harmony.",
-    companyDescription: "We are an architectural visualization studio specializing in creating digital representations of spaces before they physically exist.",
-    yearsExperience: "10+",
-    projectsCompleted: "300+",
-    happyClients: "50+"
-  });
+  const [showSuccess, setShowSuccess] = useState(false);
+  const { settings, updateSettings } = useSettings();
+  const [formData, setFormData] = useState(settings);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setSettings(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     
-    // Simulate API call
+    // Save to store (which automatically updates localStorage and notifies components)
     setTimeout(() => {
-      console.log("Settings saved:", settings);
+      updateSettings(formData);
       setSaving(false);
+      setShowSuccess(true);
+      
+      // Hide success message after 3 seconds
+      setTimeout(() => setShowSuccess(false), 3000);
     }, 1000);
   };
 
@@ -70,15 +48,23 @@ export default function SettingsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
           <p className="text-gray-600">Manage your website and company settings</p>
         </div>
-        <button
-          form="settings-form"
-          type="submit"
-          disabled={saving}
-          className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
-        >
-          <Save size={18} />
-          {saving ? "Saving..." : "Save Changes"}
-        </button>
+        <div className="flex items-center gap-3">
+          {showSuccess && (
+            <div className="flex items-center gap-2 text-green-600">
+              <CheckCircle size={18} />
+              <span className="text-sm">Settings saved!</span>
+            </div>
+          )}
+          <button
+            form="settings-form"
+            type="submit"
+            disabled={saving}
+            className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+          >
+            <Save size={18} />
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
       </div>
 
       <form id="settings-form" onSubmit={handleSubmit} className="space-y-6">
@@ -96,7 +82,7 @@ export default function SettingsPage() {
               <input
                 type="text"
                 name="siteName"
-                value={settings.siteName}
+                value={formData.siteName}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
               />
@@ -108,7 +94,7 @@ export default function SettingsPage() {
               <input
                 type="url"
                 name="siteUrl"
-                value={settings.siteUrl}
+                value={formData.siteUrl}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
               />
@@ -120,7 +106,7 @@ export default function SettingsPage() {
             </label>
             <textarea
               name="siteDescription"
-              value={settings.siteDescription}
+              value={formData.siteDescription}
               onChange={handleInputChange}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
@@ -142,7 +128,7 @@ export default function SettingsPage() {
               <input
                 type="email"
                 name="email"
-                value={settings.email}
+                value={formData.email}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
               />
@@ -154,7 +140,7 @@ export default function SettingsPage() {
               <input
                 type="tel"
                 name="phone"
-                value={settings.phone}
+                value={formData.phone}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
               />
@@ -166,7 +152,7 @@ export default function SettingsPage() {
               <input
                 type="text"
                 name="address"
-                value={settings.address}
+                value={formData.address}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
               />
@@ -188,7 +174,7 @@ export default function SettingsPage() {
               <input
                 type="url"
                 name="linkedin"
-                value={settings.linkedin}
+                value={formData.linkedin}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 placeholder="https://linkedin.com/company/..."
@@ -201,7 +187,7 @@ export default function SettingsPage() {
               <input
                 type="url"
                 name="behance"
-                value={settings.behance}
+                value={formData.behance}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 placeholder="https://behance.net/..."
@@ -214,7 +200,7 @@ export default function SettingsPage() {
               <input
                 type="url"
                 name="instagram"
-                value={settings.instagram}
+                value={formData.instagram}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 placeholder="https://instagram.com/..."
@@ -227,7 +213,7 @@ export default function SettingsPage() {
               <input
                 type="url"
                 name="pinterest"
-                value={settings.pinterest}
+                value={formData.pinterest}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 placeholder="https://pinterest.com/..."
@@ -240,7 +226,7 @@ export default function SettingsPage() {
               <input
                 type="url"
                 name="telegram"
-                value={settings.telegram}
+                value={formData.telegram}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 placeholder="https://t.me/..."
@@ -253,7 +239,7 @@ export default function SettingsPage() {
               <input
                 type="url"
                 name="whatsapp"
-                value={settings.whatsapp}
+                value={formData.whatsapp}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 placeholder="https://wa.me/..."
@@ -273,7 +259,7 @@ export default function SettingsPage() {
               <input
                 type="text"
                 name="companyName"
-                value={settings.companyName}
+                value={formData.companyName}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
               />
@@ -284,7 +270,7 @@ export default function SettingsPage() {
               </label>
               <textarea
                 name="companyTagline"
-                value={settings.companyTagline}
+                value={formData.companyTagline}
                 onChange={handleInputChange}
                 rows={2}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
@@ -296,7 +282,7 @@ export default function SettingsPage() {
               </label>
               <textarea
                 name="companyDescription"
-                value={settings.companyDescription}
+                value={formData.companyDescription}
                 onChange={handleInputChange}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
@@ -310,7 +296,7 @@ export default function SettingsPage() {
                 <input
                   type="text"
                   name="yearsExperience"
-                  value={settings.yearsExperience}
+                  value={formData.yearsExperience}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 />
@@ -322,7 +308,7 @@ export default function SettingsPage() {
                 <input
                   type="text"
                   name="projectsCompleted"
-                  value={settings.projectsCompleted}
+                  value={formData.projectsCompleted}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 />
@@ -334,7 +320,7 @@ export default function SettingsPage() {
                 <input
                   type="text"
                   name="happyClients"
-                  value={settings.happyClients}
+                  value={formData.happyClients}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 />
@@ -354,7 +340,7 @@ export default function SettingsPage() {
               <input
                 type="text"
                 name="metaKeywords"
-                value={settings.metaKeywords}
+                value={formData.metaKeywords}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 placeholder="keyword1, keyword2, keyword3"
@@ -367,7 +353,7 @@ export default function SettingsPage() {
               <input
                 type="text"
                 name="googleAnalytics"
-                value={settings.googleAnalytics}
+                value={formData.googleAnalytics}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 placeholder="GA-XXXXXXXXX"
