@@ -1,5 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
+
+// Leaflet type declarations
+declare global {
+  interface Window {
+    L: any;
+  }
+}
 import Image from "next/image";
 import Link from "next/link";
 import { 
@@ -42,6 +50,52 @@ const team: TeamMember[] = [
 
 export default function StudioPage() {
   const { settings, contactInfo, companyStats } = useSettings();
+
+  useEffect(() => {
+    // Load Leaflet CSS
+    if (!document.querySelector('link[href*="leaflet.css"]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+
+    // Load Leaflet JS
+    if (!window.L) {
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet/dist/leaflet.js';
+      script.onload = () => initializeMap();
+      document.head.appendChild(script);
+    } else {
+      initializeMap();
+    }
+
+    function initializeMap() {
+      const mapElement = document.getElementById('map');
+      if (mapElement && !mapElement.hasChildNodes()) {
+        const map = window.L.map('map').setView([-6.2173, 106.8223], 15);
+
+        window.L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; OpenStreetMap &copy; CARTO',
+          subdomains: 'abcd',
+          maxZoom: 20
+        }).addTo(map);
+
+        window.L.marker([-6.2173, 106.8223])
+          .addTo(map)
+          .bindPopup('Archi Site')
+          .openPopup();
+      }
+    }
+
+    return () => {
+      // Cleanup if needed
+      const mapElement = document.getElementById('map');
+      if (mapElement) {
+        mapElement.innerHTML = '';
+      }
+    };
+  }, []);
   return (
     <div className="pt-24 px-6 max-w-6xl mx-auto">
       {/* Hero Section */}
@@ -132,130 +186,151 @@ export default function StudioPage() {
       </div>
 
       {/* Contact Section */}
-      <div className="bg-gray-50 rounded-lg p-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div>
-            <h2 className="text-3xl font-bold mb-8">Get In Touch</h2>
-            
-            <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                  <Mail size={18} className="text-gray-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-sm text-gray-600">Email</h3>
-                  <Link 
-                    href={`mailto:${contactInfo.email}`}
-                    className="text-black hover:opacity-60 transition-opacity"
-                  >
-                    {contactInfo.email}
-                  </Link>
-                </div>
-              </div>
+      <div className="space-y-8">
+        {/* Contact Info */}
+        <div className="bg-gray-50 rounded-lg p-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div>
+              <h2 className="text-3xl font-bold mb-8">Get In Touch</h2>
               
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                  <Phone size={18} className="text-gray-600" />
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                    <Mail size={18} className="text-gray-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-sm text-gray-600">Email</h3>
+                    <Link 
+                      href={`mailto:${contactInfo.email}`}
+                      className="text-black hover:opacity-60 transition-opacity"
+                    >
+                      {contactInfo.email}
+                    </Link>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-medium text-sm text-gray-600">Phone</h3>
-                  <Link 
-                    href={`tel:${contactInfo.phone}`}
-                    className="text-black hover:opacity-60 transition-opacity"
-                  >
-                    {contactInfo.phone}
-                  </Link>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                    <Phone size={18} className="text-gray-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-sm text-gray-600">Phone</h3>
+                    <Link 
+                      href={`tel:${contactInfo.phone}`}
+                      className="text-black hover:opacity-60 transition-opacity"
+                    >
+                      {contactInfo.phone}
+                    </Link>
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <h3 className="font-medium text-sm text-gray-600 mb-3">Quick Contact</h3>
-                <div className="flex gap-3">
-                  <Link 
-                    href={contactInfo.messaging.telegram}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                    target="_blank"
-                  >
-                    <Send size={16} />
-                    <span className="text-sm">Telegram</span>
-                  </Link>
-                  <Link 
-                    href={contactInfo.messaging.whatsapp}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                    target="_blank"
-                  >
-                    <MessageCircle size={16} />
-                    <span className="text-sm">WhatsApp</span>
-                  </Link>
+                <div>
+                  <h3 className="font-medium text-sm text-gray-600 mb-3">Quick Contact</h3>
+                  <div className="flex gap-3">
+                    <Link 
+                      href={contactInfo.messaging.telegram}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                      target="_blank"
+                    >
+                      <Send size={16} />
+                      <span className="text-sm">Telegram</span>
+                    </Link>
+                    <Link 
+                      href={contactInfo.messaging.whatsapp}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                      target="_blank"
+                    >
+                      <MessageCircle size={16} />
+                      <span className="text-sm">WhatsApp</span>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div>
-            <h3 className="font-medium text-sm text-gray-600 mb-4">Follow Us</h3>
-            <div className="space-y-3">
-              <Link 
-                href={contactInfo.social.linkedin}
-                className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-gray-50 transition-colors border"
-                target="_blank"
-              >
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <Linkedin size={18} className="text-white" />
-                </div>
-                <div className="flex-1">
-                  <span className="text-black font-medium">LinkedIn</span>
-                  <div className="text-xs text-gray-500">Connect with us</div>
-                </div>
-                <ExternalLink size={16} className="text-gray-400" />
-              </Link>
-              
-              <Link 
-                href={contactInfo.social.behance}
-                className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-gray-50 transition-colors border"
-                target="_blank"
-              >
-                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                  <Dribbble size={18} className="text-white" />
-                </div>
-                <div className="flex-1">
-                  <span className="text-black font-medium">Behance</span>
-                  <div className="text-xs text-gray-500">View our portfolio</div>
-                </div>
-                <ExternalLink size={16} className="text-gray-400" />
-              </Link>
-              
-              <Link 
-                href={contactInfo.social.instagram}
-                className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-gray-50 transition-colors border"
-                target="_blank"
-              >
-                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                  <Instagram size={18} className="text-white" />
-                </div>
-                <div className="flex-1">
-                  <span className="text-black font-medium">Instagram</span>
-                  <div className="text-xs text-gray-500">Behind the scenes</div>
-                </div>
-                <ExternalLink size={16} className="text-gray-400" />
-              </Link>
-              
-              <Link 
-                href={contactInfo.social.pinterest}
-                className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-gray-50 transition-colors border"
-                target="_blank"
-              >
-                <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
-                  <MapPin size={18} className="text-white" />
-                </div>
-                <div className="flex-1">
-                  <span className="text-black font-medium">Pinterest</span>
-                  <div className="text-xs text-gray-500">Design inspiration</div>
-                </div>
-                <ExternalLink size={16} className="text-gray-400" />
-              </Link>
+            <div>
+              <h3 className="font-medium text-sm text-gray-600 mb-4">Follow Us</h3>
+              <div className="space-y-3">
+                <Link 
+                  href={contactInfo.social.linkedin}
+                  className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-gray-50 transition-colors border"
+                  target="_blank"
+                >
+                  <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <Linkedin size={18} className="text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-black font-medium">LinkedIn</span>
+                    <div className="text-xs text-gray-500">Connect with us</div>
+                  </div>
+                  <ExternalLink size={16} className="text-gray-400" />
+                </Link>
+                
+                <Link 
+                  href={contactInfo.social.behance}
+                  className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-gray-50 transition-colors border"
+                  target="_blank"
+                >
+                  <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <Dribbble size={18} className="text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-black font-medium">Behance</span>
+                    <div className="text-xs text-gray-500">View our portfolio</div>
+                  </div>
+                  <ExternalLink size={16} className="text-gray-400" />
+                </Link>
+                
+                <Link 
+                  href={contactInfo.social.instagram}
+                  className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-gray-50 transition-colors border"
+                  target="_blank"
+                >
+                  <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                    <Instagram size={18} className="text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-black font-medium">Instagram</span>
+                    <div className="text-xs text-gray-500">Behind the scenes</div>
+                  </div>
+                  <ExternalLink size={16} className="text-gray-400" />
+                </Link>
+                
+                <Link 
+                  href={contactInfo.social.pinterest}
+                  className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-gray-50 transition-colors border"
+                  target="_blank"
+                >
+                  <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+                    <MapPin size={18} className="text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-black font-medium">Pinterest</span>
+                    <div className="text-xs text-gray-500">Design inspiration</div>
+                  </div>
+                  <ExternalLink size={16} className="text-gray-400" />
+                </Link>
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Location Section - Separate Block */}
+        <div className="bg-white border border-gray-200 rounded-lg p-8">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+              <MapPin size={18} className="text-gray-600" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">Our Location</h2>
+              <p className="text-gray-600">Sudirman Central Business District, Jakarta</p>
+            </div>
+          </div>
+          
+          <div 
+            id="map" 
+            className="h-[400px] w-full rounded-xl border border-gray-200 overflow-hidden shadow-sm"
+          ></div>
         </div>
       </div>
     </div>

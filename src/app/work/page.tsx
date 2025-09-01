@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ChevronDown, Filter, Grid } from "lucide-react";
+import { Plus, X, Filter, Grid } from "lucide-react";
 import SkeletonLoader from "@/components/SkeletonLoader";
 
 const projects = [
@@ -86,12 +86,14 @@ export default function WorkPage() {
             >
               <Filter size={16} className="text-gray-600" />
               <span className="text-sm font-medium">{selectedCategory}</span>
-              <ChevronDown 
-                size={16} 
-                className={`text-gray-600 transition-transform duration-200 ${
-                  dropdownOpen ? 'rotate-180' : ''
-                }`} 
-              />
+              <div className="relative w-4 h-4">
+                <Plus 
+                  size={16} 
+                  className={`absolute text-gray-600 transition-all duration-300 transform ${
+                    dropdownOpen ? 'rotate-45 scale-110' : 'rotate-0 scale-100'
+                  }`}
+                />
+              </div>
             </button>
             
             {dropdownOpen && (
